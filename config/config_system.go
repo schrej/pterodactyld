@@ -20,29 +20,29 @@ import (
 // Defines basic system configuration settings.
 type SystemConfiguration struct {
 	// The root directory where all of the pterodactyl data is stored at.
-	RootDirectory string `default:"/var/lib/pterodactyl" yaml:"root_directory"`
+	RootDirectory string `default:"/var/lib/pterodactyl" mapstructre:"root_directory"`
 
 	// Directory where logs for server installations and other wings events are logged.
-	LogDirectory string `default:"/var/log/pterodactyl" yaml:"log_directory"`
+	LogDirectory string `default:"/var/log/pterodactyl" mapstructre:"log_directory"`
 
 	// Directory where the server data is stored at.
-	Data string `default:"/var/lib/pterodactyl/volumes" yaml:"data"`
+	Data string `default:"/var/lib/pterodactyl/volumes" mapstructre:"data"`
 
 	// Directory where server archives for transferring will be stored.
-	ArchiveDirectory string `default:"/var/lib/pterodactyl/archives" yaml:"archive_directory"`
+	ArchiveDirectory string `default:"/var/lib/pterodactyl/archives" mapstructre:"archive_directory"`
 
 	// Directory where local backups will be stored on the machine.
-	BackupDirectory string `default:"/var/lib/pterodactyl/backups" yaml:"backup_directory"`
+	BackupDirectory string `default:"/var/lib/pterodactyl/backups" mapstructre:"backup_directory"`
 
 	// The user that should own all of the server files, and be used for containers.
-	Username string `default:"pterodactyl" yaml:"username"`
+	Username string `default:"pterodactyl" mapstructre:"username"`
 
 	// The timezone for this Wings instance. This is detected by Wings automatically if possible,
 	// and falls back to UTC if not able to be detected. If you need to set this manually, that
 	// can also be done.
 	//
 	// This timezone value is passed into all containers created by Wings.
-	Timezone string `yaml:"timezone"`
+	Timezone string `mapstructre:"timezone"`
 
 	// Definitions for the user that gets created to ensure that we can quickly access
 	// this information without constantly having to do a system lookup.
@@ -59,35 +59,35 @@ type SystemConfiguration struct {
 	// Set to 0 to disable disk checking entirely. This will always return 0 for the disk space used
 	// by a server and should only be set in extreme scenarios where performance is critical and
 	// disk usage is not a concern.
-	DiskCheckInterval int64 `default:"150" yaml:"disk_check_interval"`
+	DiskCheckInterval int64 `default:"150" mapstructre:"disk_check_interval"`
 
 	// If set to true, file permissions for a server will be checked when the process is
 	// booted. This can cause boot delays if the server has a large amount of files. In most
 	// cases disabling this should not have any major impact unless external processes are
 	// frequently modifying a servers' files.
-	CheckPermissionsOnBoot bool `default:"true" yaml:"check_permissions_on_boot"`
+	CheckPermissionsOnBoot bool `default:"true" mapstructre:"check_permissions_on_boot"`
 
 	// If set to false Wings will not attempt to write a log rotate configuration to the disk
 	// when it boots and one is not detected.
-	EnableLogRotate bool `default:"true" yaml:"enable_log_rotate"`
+	EnableLogRotate bool `default:"true" mapstructre:"enable_log_rotate"`
 
 	// The number of lines to send when a server connects to the websocket.
-	WebsocketLogCount int `default:"150" yaml:"websocket_log_count"`
+	WebsocketLogCount int `default:"150" mapstructre:"websocket_log_count"`
 
-	Sftp SftpConfiguration `yaml:"sftp"`
+	Sftp SftpConfiguration `mapstructre:"sftp"`
 
-	CrashDetection CrashDetection `yaml:"crash_detection"`
+	CrashDetection CrashDetection `mapstructre:"crash_detection"`
 
-	Backups Backups `yaml:"backups"`
+	Backups Backups `mapstructre:"backups"`
 
-	Transfers Transfers `yaml:"transfers"`
+	Transfers Transfers `mapstructre:"transfers"`
 }
 
 type CrashDetection struct {
 	// Determines if Wings should detect a server that stops with a normal exit code of
 	// "0" as being crashed if the process stopped without any Wings interaction. E.g.
 	// the user did not press the stop button, but the process stopped cleanly.
-	DetectCleanExitAsCrash bool `default:"true" yaml:"detect_clean_exit_as_crash"`
+	DetectCleanExitAsCrash bool `default:"true" mapstructre:"detect_clean_exit_as_crash"`
 
 	// Timeout specifies the timeout between crashes that will not cause the server
 	// to be automatically restarted, this value is used to prevent servers from
@@ -104,7 +104,7 @@ type Backups struct {
 	// if the value is greater than 0, the write speed is the value in MiB/s.
 	//
 	// Defaults to 0 (unlimited)
-	WriteLimit int `default:"0" yaml:"write_limit"`
+	WriteLimit int `default:"0" mapstructre:"write_limit"`
 }
 
 type Transfers struct {
@@ -114,7 +114,7 @@ type Transfers struct {
 	// if the value is greater than 0, the write speed is the value in MiB/s.
 	//
 	// Defaults to 0 (unlimited)
-	DownloadLimit int `default:"0" yaml:"download_limit"`
+	DownloadLimit int `default:"0" mapstructre:"download_limit"`
 }
 
 // ConfigureDirectories ensures that all of the system directories exist on the
@@ -219,8 +219,8 @@ func EnableLogRotation() error {
 
 	err = t.Execute(f, logrotateConfig{
 		Directory: viper.GetString("system.log_directory"),
-		UserID: viper.GetInt("system.user.uid"),
-		GroupID: viper.GetInt("system.user.gid"),
+		UserID:    viper.GetInt("system.user.uid"),
+		GroupID:   viper.GetInt("system.user.gid"),
 	})
 	return errors.Wrap(err, "config: failed to write logrotate to disk")
 }

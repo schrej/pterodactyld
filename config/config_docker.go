@@ -22,7 +22,7 @@ type dockerNetworkInterfaces struct {
 type DockerNetworkConfiguration struct {
 	// The interface that should be used to create the network. Must not conflict
 	// with any other interfaces in use by Docker or on the system.
-	Interface string `default:"172.18.0.1" json:"interface" yaml:"interface"`
+	Interface string `default:"172.18.0.1" json:"interface" mapstructure:"interface"`
 
 	// The DNS settings for containers.
 	Dns []string `default:"[\"1.1.1.1\", \"1.0.0.1\"]"`
@@ -31,12 +31,12 @@ type DockerNetworkConfiguration struct {
 	// be created. If it is not found, a new network will be created using the interface
 	// defined.
 	Name       string                  `default:"pterodactyl_nw"`
-	ISPN       bool                    `default:"false" yaml:"ispn"`
+	ISPN       bool                    `default:"false" mapstructure:"ispn"`
 	Driver     string                  `default:"bridge"`
-	Mode       string                  `default:"pterodactyl_nw" yaml:"network_mode"`
-	IsInternal bool                    `default:"false" yaml:"is_internal"`
-	EnableICC  bool                    `default:"true" yaml:"enable_icc"`
-	Interfaces dockerNetworkInterfaces `yaml:"interfaces"`
+	Mode       string                  `default:"pterodactyl_nw" mapstructure:"network_mode"`
+	IsInternal bool                    `default:"false" mapstructure:"is_internal"`
+	EnableICC  bool                    `default:"true" mapstructure:"enable_icc"`
+	Interfaces dockerNetworkInterfaces `mapstructure:"interfaces"`
 }
 
 // Defines the docker configuration used by the daemon when interacting with
@@ -44,24 +44,24 @@ type DockerNetworkConfiguration struct {
 type DockerConfiguration struct {
 	// Network configuration that should be used when creating a new network
 	// for containers run through the daemon.
-	Network DockerNetworkConfiguration `json:"network" yaml:"network"`
+	Network DockerNetworkConfiguration `json:"network" mapstructure:"network"`
 
 	// Domainname is the Docker domainname for all containers.
-	Domainname string `default:"" json:"domainname" yaml:"domainname"`
+	Domainname string `default:"" json:"domainname" mapstructure:"domainname"`
 
 	// Registries .
-	Registries map[string]RegistryConfiguration `json:"registries" yaml:"registries"`
+	Registries map[string]RegistryConfiguration `json:"registries" mapstructure:"registries"`
 
 	// The size of the /tmp directory when mounted into a container. Please be aware that Docker
 	// utilizes host memory for this value, and that we do not keep track of the space used here
 	// so avoid allocating too much to a server.
-	TmpfsSize uint `default:"100" json:"tmpfs_size" yaml:"tmpfs_size"`
+	TmpfsSize uint `default:"100" json:"tmpfs_size" mapstructure:"tmpfs_size"`
 }
 
 // RegistryConfiguration .
 type RegistryConfiguration struct {
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
 }
 
 // Base64 .

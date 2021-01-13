@@ -371,11 +371,12 @@ func initConfig() {
 		viper.SetConfigFile(configPath)
 	}
 	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(*viper.ConfigFileNotFoundError); ok {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			exitWithConfigurationNotice()
 		}
 		log2.Fatalf("cmd/root: failed to read configuration: %s", err)
 	}
+	config.SetDefaults()
 }
 
 // Configures the global logger for Zap so that we can call it from any location

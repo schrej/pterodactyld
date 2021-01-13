@@ -21,7 +21,7 @@ import (
 const DefaultLocation = "/etc/pterodactyl/config.yml"
 
 type Configuration struct {
-	sync.RWMutex `json:"-" yaml:"-"`
+	sync.RWMutex `json:"-" mapstructure:"-"`
 
 	// The location from which this configuration instance was instantiated.
 	path string
@@ -39,15 +39,15 @@ type Configuration struct {
 
 	// An identifier for the token which must be included in any requests to the panel
 	// so that the token can be looked up correctly.
-	AuthenticationTokenId string `json:"token_id" yaml:"token_id"`
+	AuthenticationTokenId string `json:"token_id" mapstructure:"token_id"`
 
 	// The token used when performing operations. Requests to this instance must
 	// validate against it.
-	AuthenticationToken string `json:"token" yaml:"token"`
+	AuthenticationToken string `json:"token" mapstructure:"token"`
 
-	Api    ApiConfiguration    `json:"api" yaml:"api"`
-	System SystemConfiguration `json:"system" yaml:"system"`
-	Docker DockerConfiguration `json:"docker" yaml:"docker"`
+	Api    ApiConfiguration    `json:"api" mapstructure:"api"`
+	System SystemConfiguration `json:"system" mapstructure:"system"`
+	Docker DockerConfiguration `json:"docker" mapstructure:"docker"`
 
 	// Defines internal throttling configurations for server processes to prevent
 	// someone from running an endless loop that spams data to logs.
@@ -55,52 +55,52 @@ type Configuration struct {
 
 	// The location where the panel is running that this daemon should connect to
 	// to collect data and send events.
-	PanelLocation string                   `json:"remote" yaml:"remote"`
-	RemoteQuery   RemoteQueryConfiguration `json:"remote_query" yaml:"remote_query"`
+	PanelLocation string                   `json:"remote" mapstructure:"remote"`
+	RemoteQuery   RemoteQueryConfiguration `json:"remote_query" mapstructure:"remote_query"`
 
 	// AllowedMounts is a list of allowed host-system mount points.
 	// This is required to have the "Server Mounts" feature work properly.
-	AllowedMounts []string `json:"-" yaml:"allowed_mounts"`
+	AllowedMounts []string `json:"-" mapstructure:"allowed_mounts"`
 
 	// AllowedOrigins is a list of allowed request origins.
 	// The Panel URL is automatically allowed, this is only needed for adding
 	// additional origins.
-	AllowedOrigins []string `json:"allowed_origins" yaml:"allowed_origins"`
+	AllowedOrigins []string `json:"allowed_origins" mapstructure:"allowed_origins"`
 }
 
 // Defines the configuration of the internal SFTP server.
 type SftpConfiguration struct {
 	// The bind address of the SFTP server.
-	Address string `default:"0.0.0.0" json:"bind_address" yaml:"bind_address"`
+	Address string `default:"0.0.0.0" json:"bind_address" mapstructure:"bind_address"`
 	// The bind port of the SFTP server.
-	Port int `default:"2022" json:"bind_port" yaml:"bind_port"`
+	Port int `default:"2022" json:"bind_port" mapstructure:"bind_port"`
 	// If set to true, no write actions will be allowed on the SFTP server.
-	ReadOnly bool `default:"false" yaml:"read_only"`
+	ReadOnly bool `default:"false" mapstructure:"read_only"`
 }
 
 // Defines the configuration for the internal API that is exposed by the
 // daemon webserver.
 type ApiConfiguration struct {
 	// The interface that the internal webserver should bind to.
-	Host string `default:"0.0.0.0" yaml:"host"`
+	Host string `default:"0.0.0.0" mapstructure:"host"`
 
 	// The port that the internal webserver should bind to.
-	Port int `default:"8080" yaml:"port"`
+	Port int `default:"8080" mapstructure:"port"`
 
 	// SSL configuration for the daemon.
 	Ssl struct {
-		Enabled         bool   `json:"enabled" yaml:"enabled"`
-		CertificateFile string `json:"cert" yaml:"cert"`
-		KeyFile         string `json:"key" yaml:"key"`
+		Enabled         bool   `json:"enabled" mapstructure:"enabled"`
+		CertificateFile string `json:"cert" mapstructure:"cert"`
+		KeyFile         string `json:"key" mapstructure:"key"`
 	}
 
 	// Determines if functionality for allowing remote download of files into server directories
 	// is enabled on this instance. If set to "true" remote downloads will not be possible for
 	// servers.
-	DisableRemoteDownload bool `json:"disable_remote_download" yaml:"disable_remote_download"`
+	DisableRemoteDownload bool `json:"disable_remote_download" mapstructure:"disable_remote_download"`
 
 	// The maximum size for files uploaded through the Panel in bytes.
-	UploadLimit int `default:"100" json:"upload_limit" yaml:"upload_limit"`
+	UploadLimit int `default:"100" json:"upload_limit" mapstructure:"upload_limit"`
 }
 
 // Defines the configuration settings for remote requests from Wings to the Panel.
@@ -110,7 +110,7 @@ type RemoteQueryConfiguration struct {
 	// are taking longer than 30 seconds to complete it is likely a performance issue that
 	// should be resolved on the Panel, and not something that should be resolved by upping this
 	// number.
-	Timeout uint `default:"30" yaml:"timeout"`
+	Timeout uint `default:"30" mapstructure:"timeout"`
 
 	// The number of servers to load in a single request to the Panel API when booting the
 	// Wings instance. A single request is initially made to the Panel to get this number
@@ -121,7 +121,7 @@ type RemoteQueryConfiguration struct {
 	// memory limits on your Panel instance. In the grand scheme of things 4 requests for
 	// 50 servers is likely just as quick as two for 100 or one for 400, and will certainly
 	// be less likely to cause performance issues on the Panel.
-	BootServersPerPage uint `default:"50" yaml:"boot_servers_per_page"`
+	BootServersPerPage uint `default:"50" mapstructure:"boot_servers_per_page"`
 }
 
 // Reads the configuration from the provided file and returns the configuration
@@ -132,7 +132,7 @@ func ReadConfiguration(path string) (*Configuration, error) {
 		return nil, err
 	}
 
-	c := new(Configuration)
+	c := &Configuration{}
 	// Configures the default values for many of the configuration options present
 	// in the structs. Values set in the configuration file take priority over the
 	// default values.
